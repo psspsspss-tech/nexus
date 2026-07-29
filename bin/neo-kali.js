@@ -37,17 +37,22 @@ function getOllamaModels() {
 
 // ─── Model Registry — ALL FREE ────────────────────────────────────────────────
 const MODEL_PRESETS = [
+  // ── Groq Cloud ───────────────────────────────────────────────────────────────
   { key: 'llama70b',    provider: 'groq',       id: 'llama-3.3-70b-versatile',                          name: 'Llama 3.3 70B',     tag: 'Best quality · Groq'        },
   { key: 'llama8b',     provider: 'groq',       id: 'llama-3.1-8b-instant',                             name: 'Llama 3.1 8B',      tag: 'Lightning fast · Groq'      },
   { key: 'deepseek',    provider: 'groq',       id: 'deepseek-r1-distill-llama-70b',                    name: 'DeepSeek R1 70B',   tag: 'Deep reasoning · Groq'      },
   { key: 'gptoss120b',  provider: 'groq',       id: 'openai/gpt-oss-120b',                              name: 'GPT-OSS 120B',      tag: 'OpenAI OSS · Groq'          },
+  { key: 'gptoss20b-g', provider: 'groq',       id: 'openai/gpt-oss-20b',                               name: 'GPT-OSS 20B',       tag: 'OpenAI OSS 20B · Groq'      },
   { key: 'qwen',        provider: 'groq',       id: 'qwen/qwen3.6-27b',                                 name: 'Qwen 3.6 27B',      tag: 'Alibaba · Groq'             },
   { key: 'compound',    provider: 'groq',       id: 'groq/compound',                                    name: 'Groq Compound',     tag: 'Agentic multi-step · Groq'  },
+  { key: 'compoundm',   provider: 'groq',       id: 'groq/compound-mini',                               name: 'Groq Compound Mini',tag: 'Fast Agentic · Groq'         },
+  // ── OpenRouter 100% Free Tier ──────────────────────────────────────────────
   { key: 'nemotron550', provider: 'openrouter', id: 'nvidia/nemotron-3-ultra-550b-a55b:free',           name: 'Nemotron 550B',     tag: '1M context · FREE · OR'     },
   { key: 'nemotron120', provider: 'openrouter', id: 'nvidia/nemotron-3-super-120b-a12b:free',           name: 'Nemotron 120B',     tag: 'FREE · OpenRouter'          },
   { key: 'gptoss20b',   provider: 'openrouter', id: 'openai/gpt-oss-20b:free',                          name: 'GPT-OSS 20B',       tag: 'OpenAI OSS · FREE · OR'     },
   { key: 'gemma4',      provider: 'openrouter', id: 'google/gemma-4-31b-it:free',                       name: 'Gemma 4 31B',       tag: 'Google · FREE · OR'         },
-  { key: 'nemotronr',   provider: 'openrouter', id: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free', name: 'Nemotron Omni 30B', tag: 'Reasoning · FREE · OR'    },
+  { key: 'gemma4-26b',  provider: 'openrouter', id: 'google/gemma-4-26b-a4b-it:free',                    name: 'Gemma 4 26B',       tag: 'Google 26B · FREE · OR'     },
+  { key: 'nemotronr',   provider: 'openrouter', id: 'nvidia/nvidia-nemotron-3-nano-omni-30b-a3b-reasoning:free', name: 'Nemotron Omni 30B', tag: 'Reasoning · FREE · OR'    },
   { key: 'ling',        provider: 'openrouter', id: 'inclusionai/ling-3.0-flash:free',                  name: 'Ling 3.0 Flash',    tag: '262K ctx · FREE · OR'       },
   { key: 'laguna',      provider: 'openrouter', id: 'poolside/laguna-s-2.1:free',                       name: 'Laguna S 2.1',      tag: 'Code · FREE · OR'           },
   { key: 'northcode',   provider: 'openrouter', id: 'cohere/north-mini-code:free',                      name: 'North Mini Code',   tag: 'Coding focused · FREE · OR' },
