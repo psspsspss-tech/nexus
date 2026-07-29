@@ -40,7 +40,6 @@ const MODEL_PRESETS = [
   { key: 'llama70b',    provider: 'groq',       id: 'llama-3.3-70b-versatile',                          name: 'Llama 3.3 70B',     tag: 'Best quality · Groq'        },
   { key: 'llama8b',     provider: 'groq',       id: 'llama-3.1-8b-instant',                             name: 'Llama 3.1 8B',      tag: 'Lightning fast · Groq'      },
   { key: 'deepseek',    provider: 'groq',       id: 'deepseek-r1-distill-llama-70b',                    name: 'DeepSeek R1 70B',   tag: 'Deep reasoning · Groq'      },
-  { key: 'gemma2',      provider: 'groq',       id: 'gemma2-9b-it',                                     name: 'Gemma 2 9B',        tag: 'Google · Groq'              },
   { key: 'gptoss120b',  provider: 'groq',       id: 'openai/gpt-oss-120b',                              name: 'GPT-OSS 120B',      tag: 'OpenAI OSS · Groq'          },
   { key: 'qwen',        provider: 'groq',       id: 'qwen/qwen3.6-27b',                                 name: 'Qwen 3.6 27B',      tag: 'Alibaba · Groq'             },
   { key: 'compound',    provider: 'groq',       id: 'groq/compound',                                    name: 'Groq Compound',     tag: 'Agentic multi-step · Groq'  },
@@ -1016,8 +1015,11 @@ async function checkModelUpdates() {
 async function queryAI(messages, onChunk) {
   const sys       = buildSystemPrompt();
   const memCtx    = memory.facts.length > 0 ? '\n\nMemory:\n' + memory.facts.map(f => `- ${f}`).join('\n') : '';
-  const history   = memory.history.slice(-14).map(m => ({ role: m.role, content: m.content }));
-  const formatted = [{ role: 'system', content: sys + memCtx }, ...history, ...messages.map(m => ({ role: m.role, content: m.content }))];
+  const history   = memory.history.slice(-10).map(m => ({
+    role: m.role,
+    content: m.content.length > 2500 ? m.content.slice(0, 2500) + '\n[...truncated...]' : m.content
+  }));
+  const formatted = [{ role: 'system', content: sys + memCtx }, ...history, ...messages.map(m => ({ role: m.role, content: m.content.length > 4000 ? m.content.slice(0, 4000) + '\n[...truncated...]' : m.content }))];
   const preset    = MODEL_PRESETS.find(m => m.id === config.model);
 
   async function streamOpenAI(url, key, body, timeoutMs = 8000) {
@@ -1074,12 +1076,12 @@ async function queryAI(messages, onChunk) {
     } catch (e) { process.stdout.write(chalk.dim(`\n[fallback: ${e.message.slice(0, 50)}]\n`)); }
   }
 
-  // Fallback chain
+  // Fallback chain (Groq 8B -> Groq 70B -> OpenRouter free)
   const fallbacks = [
+    config.groqKey && (() => streamOpenAI('https://api.groq.com/openai/v1/chat/completions', config.groqKey, { model: 'llama-3.1-8b-instant', messages: formattedFinal, temperature: 0.7 })),
     config.groqKey && (() => streamOpenAI('https://api.groq.com/openai/v1/chat/completions', config.groqKey, { model: 'llama-3.3-70b-versatile', messages: formattedFinal, temperature: 0.7 })),
     () => streamOpenAI('https://openrouter.ai/api/v1/chat/completions', config.openrouterKey || '', { model: 'nvidia/nemotron-3-ultra-550b-a55b:free', messages: formattedFinal, temperature: 0.7 }),
-    () => streamOpenAI('https://openrouter.ai/api/v1/chat/completions', config.openrouterKey || '', { model: 'nvidia/nemotron-3-super-120b-a12b:free', messages: formattedFinal, temperature: 0.7 }),
-    () => streamOpenAI('https://openrouter.ai/api/v1/chat/completions', config.openrouterKey || '', { model: 'google/gemma-4-31b-it:free', messages: formattedFinal, temperature: 0.7 }),
+    () => streamOpenAI('https://openrouter.ai/api/v1/chat/completions', config.openrouterKey || '', { model: 'openai/gpt-oss-20b:free', messages: formattedFinal, temperature: 0.7 }),
   ].filter(Boolean);
 
   for (const fn of fallbacks) {
