@@ -1020,26 +1020,35 @@ async function queryAI(messages, onChunk) {
   const formatted = [{ role: 'system', content: sys + memCtx }, ...history, ...messages.map(m => ({ role: m.role, content: m.content }))];
   const preset    = MODEL_PRESETS.find(m => m.id === config.model);
 
-  async function streamOpenAI(url, key, body) {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ ...body, stream: true }),
-    });
-    if (!res.ok) { const e = await res.text().catch(() => res.statusText); throw new Error(`HTTP ${res.status}: ${e.slice(0, 100)}`); }
-    const reader = res.body.getReader();
-    const dec    = new TextDecoder();
-    let full = '';
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      for (const line of dec.decode(value, { stream: true }).split('\n')) {
-        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-          try { const d = JSON.parse(line.slice(6)).choices?.[0]?.delta?.content || ''; if (d) { full += d; onChunk(d); } } catch (_) {}
+  async function streamOpenAI(url, key, body, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+        body: JSON.stringify({ ...body, stream: true }),
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+      if (!res.ok) { const e = await res.text().catch(() => res.statusText); throw new Error(`HTTP ${res.status}: ${e.slice(0, 100)}`); }
+      const reader = res.body.getReader();
+      const dec    = new TextDecoder();
+      let full = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        for (const line of dec.decode(value, { stream: true }).split('\n')) {
+          if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+            try { const d = JSON.parse(line.slice(6)).choices?.[0]?.delta?.content || ''; if (d) { full += d; onChunk(d); } } catch (_) {}
+          }
         }
       }
+      return full;
+    } catch (err) {
+      clearTimeout(timer);
+      throw err;
     }
-    return full;
   }
 
   // Wrap with LB mode if active
