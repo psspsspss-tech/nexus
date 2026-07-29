@@ -17,23 +17,33 @@
 
 ---
 
-## 🚀 Quick Start
+## 🌐 Installation on Any Kali Machine
 
-### Installation
-
+### 1-Line Quick Install
 ```bash
-cd ~/Projects/kali-ai-assistant
-npm install
-npm link  # makes 'neo-kali' accessible globally
+git clone https://github.com/psspsspss-tech/kali-neo-ai.git ~/kali-neo-ai && cd ~/kali-neo-ai && npm install && sudo npm link
 ```
 
-### Basic Usage
+### Manual Installation
+```bash
+# Clone the repository
+git clone https://github.com/psspsspss-tech/kali-neo-ai.git ~/kali-neo-ai
+cd ~/kali-neo-ai
+
+# Install dependencies and link globally
+npm install
+sudo npm link
+```
+
+---
+
+## 🚀 Usage Guide
 
 ```bash
-# REPL Interactive Mode
+# Interactive REPL Mode
 neo-kali
 
-# Single-Prompt Mode
+# Single-Prompt Command Line Mode
 neo-kali scan 192.168.1.0/24 for open ports and services
 neo-kali crack hash 5f4dcc3b5aa765d61d8327deb882cf99
 ```
