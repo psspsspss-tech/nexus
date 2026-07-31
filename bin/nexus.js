@@ -602,12 +602,27 @@ function render(text) {
 function printBanner() {
   console.clear();
   const preset = MODEL_PRESETS.find(m => m.id === config.model);
-  const mName  = preset ? preset.name : config.model.slice(0, 22);
+  const mName  = preset ? preset.name : config.model.slice(0, 16);
   const lbStatus = activeLBMode
     ? chalk.bold.red(`🔴 LB:${lbModes[activeLBMode]?.name}`)
     : chalk.dim('LB:off');
 
-  console.log(`
+  const cols = process.stdout.columns || 80;
+  if (cols < 75) {
+    // Mobile narrow terminal layout
+    console.log(`
+${chalk.bold.cyan('╔══════════════════════════════════════════╗')}
+${chalk.bold.cyan('║')} ${chalk.bold.green('⚡ NEXUS')} ${chalk.bold.yellow('//')} ${chalk.bold.magenta('MOBILE AGENT')} ${chalk.bold.white('v' + VERSION)}         ${chalk.bold.cyan('║')}
+${chalk.bold.cyan('╠══════════════════════════════════════════╣')}
+${chalk.bold.cyan('║')} ${chalk.bold.white('Model:')} ${chalk.bold.cyan(mName.padEnd(16))} ${lbStatus.padEnd(10)} ${chalk.bold.cyan('║')}
+${chalk.bold.cyan('║')} ${chalk.bold.white('Groq:')} ${config.groqKey ? chalk.green('✓') : chalk.red('✗')}   ${chalk.bold.white('OpenRouter:')} ${chalk.green('✓')}           ${chalk.bold.cyan('║')}
+${chalk.bold.cyan('╠══════════════════════════════════════════╣')}
+${chalk.bold.cyan('║')} ${chalk.dim('/help · /lb · /prompt · /tools · /model')} ${chalk.bold.cyan('║')}
+${chalk.bold.cyan('╚══════════════════════════════════════════╝')}
+`);
+  } else {
+    // Standard desktop layout
+    console.log(`
 ${chalk.bold.cyan('  ╔══════════════════════════════════════════════════════════════════╗')}
 ${chalk.bold.cyan('  ║')} ${chalk.bold.green('⚡ NEXUS')} ${chalk.bold.yellow('//')} ${chalk.bold.magenta('PLUS ULTRA')} ${chalk.bold.white('v' + VERSION)} ${chalk.bold.cyan('· LIMIT BREAKER · PROMPT GEN')}  ${chalk.bold.cyan('║')}
 ${chalk.bold.cyan('  ║')} ${chalk.dim('──────────────────────────────────────────────────────────────')} ${chalk.bold.cyan('║')}
@@ -616,11 +631,35 @@ ${chalk.bold.cyan('  ║')} ${chalk.dim('─────────────
 ${chalk.bold.cyan('  ║')}  ${chalk.dim('/help · /lb · /prompt · /tools · /model · /update · /exec')}    ${chalk.bold.cyan('║')}
 ${chalk.bold.cyan('  ╚══════════════════════════════════════════════════════════════════╝')}
 `);
+  }
 }
 
 // ─── /help ────────────────────────────────────────────────────────────────────
 function printHelp() {
-  console.log(`
+  const cols = process.stdout.columns || 80;
+  if (cols < 75) {
+    console.log(`
+${chalk.bold.cyan('⚡ NEXUS v4.0 · MOBILE HELP')}
+
+${chalk.bold.red('🔴 LIMIT BREAKER')}
+  /lb           List bypass modes
+  /lb <mode>    Activate mode (e.g. /lb nexus)
+  /lb off       Disable limit breaker
+
+${chalk.bold.magenta('✨ PROMPT GEN')}
+  /prompt       List prompt templates
+  /prompt <type> <task>  Generate prompt
+
+${chalk.bold.white('CORE COMMANDS')}
+  /tools        Kali tool list
+  /model [key]  Switch AI model
+  /exec <cmd>   Run command + AI analysis
+  /setkey <p> <k> Set API key (groq/openrouter)
+  /providers    Show provider status
+  /exit         Save & quit
+`);
+  } else {
+    console.log(`
 ${chalk.bold.cyan('  ╔════════════════════════════════════════════════════════════════════╗')}
 ${chalk.bold.cyan('  ║')}           ${chalk.bold.yellow('⚡ NEXUS v4.0 · COMPLETE COMMAND REFERENCE')}          ${chalk.bold.cyan('║')}
 ${chalk.bold.cyan('  ╠════════════════════════════════════════════════════════════════════╣')}
@@ -665,6 +704,7 @@ ${chalk.bold.cyan('  ║')}  nexus scan 192.168.1.0/24 for all open ports       
 ${chalk.bold.cyan('  ║')}  nexus crack hash 5f4dcc3b5aa765d61d8327deb882cf99           ${chalk.bold.cyan('║')}
 ${chalk.bold.cyan('  ╚════════════════════════════════════════════════════════════════════╝')}
 `);
+  }
 }
 
 // ─── /lb — Limit Breaker ──────────────────────────────────────────────────────
