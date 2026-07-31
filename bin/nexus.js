@@ -1210,8 +1210,8 @@ async function startREPL() {
   rl.on('close', () => { saveMemory(memory); process.exit(0); });
 
   const askPrompt = () => {
-    const lbTag = activeLBMode ? bgRedWhite(`🔴 ${lbModes[activeLBMode]?.name}`) + ' ' : '';
-    const promptStr = '\n' + bgYellowBlack('NEXUS') + ' ' + lbTag + chalk.bold.cyan('❯ ');
+    const lbTag = activeLBMode ? redBadge(`🔴 ${lbModes[activeLBMode]?.name}`) + ' ' : '';
+    const promptStr = '\n' + yellowBadge('NEXUS') + ' ' + lbTag + chalk.bold.cyan('❯ ');
     rl.question(promptStr, async line => {
       const input = line.trim();
       if (!input) return askPrompt();
@@ -1221,13 +1221,13 @@ async function startREPL() {
         const cmd     = parts[0].toLowerCase();
         const argText = parts.slice(1).join(' ');
         const handled = await handleSlash(cmd, argText);
-        if (!handled) console.log(bgRedWhite(` UNKNOWN COMMAND: ${cmd} `) + chalk.dim('  →  /help\n'));
+        if (!handled) console.log(redBadge(` UNKNOWN COMMAND: ${cmd} `) + chalk.dim('  →  /help\n'));
         return askPrompt();
       }
 
       const userMsg = { role: 'user', content: input };
-      const lbLabel = activeLBMode ? bgRedWhite(` 🔴 ${lbModes[activeLBMode]?.name} `) : '';
-      console.log('\n' + bgCyanBlack('⚡ NEXUS AGENT') + ' ' + lbLabel + '\n');
+      const lbLabel = activeLBMode ? redBadge(` 🔴 ${lbModes[activeLBMode]?.name} `) : '';
+      console.log('\n' + cyanBadge('⚡ NEXUS AGENT') + ' ' + lbLabel + '\n');
       let raw = '';
       await queryAI([userMsg], chunk => { raw += chunk; process.stdout.write(chunk); });
       console.log('\n' + chalk.yellow('███████████████████████████████████████████████████████████') + '\n');
