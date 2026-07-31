@@ -525,6 +525,7 @@ function loadConfig() {
     model:         'llama-3.3-70b-versatile',
     groqKey:       process.env.GROQ_API_KEY || '',
     openrouterKey: process.env.OPENROUTER_API_KEY || '',
+    theme:         'cyberpunk',
     autoFallback:  true,
   };
 }
@@ -576,107 +577,101 @@ Integrated tools: ${allTools}
 RULES: Give COMPLETE answers. Wrap all commands in \`\`\`bash blocks. Use ## headers, **bold** key terms, - bullets. Never truncate.${lbSection}`;
 }
 
-// ─── Neo-Brutalist Terminal UI Utilities ──────────────────────────────────────
-const bgYellowBlack = (t) => chalk.bgYellow.black.bold(` ${t} `);
-const bgCyanBlack   = (t) => chalk.bgCyan.black.bold(` ${t} `);
-const bgPinkWhite   = (t) => chalk.bgMagenta.white.bold(` ${t} `);
-const bgRedWhite    = (t) => chalk.bgRed.white.bold(` ${t} `);
-const bgGreenBlack  = (t) => chalk.bgGreen.black.bold(` ${t} `);
+// ─── Modern Cyber-Neon Terminal UI Utilities ──────────────────────────────────
+const cyanBadge    = (t) => chalk.bold.black.bgCyan(` ${t} `);
+const greenBadge   = (t) => chalk.bold.black.bgGreen(` ${t} `);
+const yellowBadge  = (t) => chalk.bold.black.bgYellow(` ${t} `);
+const redBadge     = (t) => chalk.bold.white.bgRed(` ${t} `);
+const magentaBadge = (t) => chalk.bold.white.bgMagenta(` ${t} `);
 
-// ─── Terminal Renderer (Neo-Brutalist Style) ──────────────────────────────────
+// ─── Terminal Renderer (Sleek Cyber-Neon) ──────────────────────────────────────
 function render(text) {
   let t = text.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<thought>[\s\S]*?<\/thought>/gi, '').trim();
   
-  // Neo-Brutalist Headers
-  t = t.replace(/^#### (.*$)/gim, (_, p) => '\n' + bgCyanBlack(`▌ ${p.trim()}`) + '\n');
-  t = t.replace(/^### (.*$)/gim,  (_, p) => '\n' + bgYellowBlack(`⚡ ${p.trim()}`) + '\n');
-  t = t.replace(/^## (.*$)/gim,   (_, p) => '\n' + bgPinkWhite(`❖ ${p.trim()}`) + '\n');
-  t = t.replace(/^# (.*$)/gim,    (_, p) => '\n' + bgGreenBlack(`█ ${p.trim().toUpperCase()}`) + '\n');
+  t = t.replace(/^#### (.*$)/gim, (_, p) => '\n' + chalk.bold.cyan(`◈ ${p.trim()}`));
+  t = t.replace(/^### (.*$)/gim,  (_, p) => '\n' + chalk.bold.magenta(`⚡ ${p.trim()}`));
+  t = t.replace(/^## (.*$)/gim,   (_, p) => '\n' + chalk.bold.yellow(`❖ ${p.trim()}`));
+  t = t.replace(/^# (.*$)/gim,    (_, p) => '\n' + chalk.bold.green(`█ ${p.trim().toUpperCase()}`));
   
-  // Neo-Brutalist Bullets & Lists
-  t = t.replace(/^[•·] (.*$)/gim, (_, p) => chalk.bold.cyan(`  █ `) + chalk.white(p.trim()));
-  t = t.replace(/^- (.*$)/gim,    (_, p) => chalk.bold.yellow(`  ▓ `) + chalk.white(p.trim()));
-  t = t.replace(/^\d+\. (.*$)/gim,(_, p) => chalk.bold.magenta(`  ▒ `) + chalk.white(p.trim()));
+  t = t.replace(/^[•·] (.*$)/gim, (_, p) => chalk.cyan(`  ▸ `) + chalk.white(p.trim()));
+  t = t.replace(/^- (.*$)/gim,    (_, p) => chalk.yellow(`  ✦ `) + chalk.white(p.trim()));
+  t = t.replace(/^\d+\. (.*$)/gim,(_, p) => chalk.magenta(`  ◆ `) + chalk.white(p.trim()));
   
-  // Inline Emphasis & Codes
-  t = t.replace(/\*\*(.*?)\*\*/g, (_, p) => chalk.bold.yellow(`[ ${p} ]`));
-  t = t.replace(/`([^`\n]+)`/g,   (_, p) => chalk.bold.black.bgWhite(` ${p} `));
+  t = t.replace(/\*\*(.*?)\*\*/g, (_, p) => chalk.bold.yellow(p));
+  t = t.replace(/`([^`\n]+)`/g,   (_, p) => chalk.bold.green(p));
   
-  // Neo-Brutalist Code Block Box
+  // Sleek Card Code Box
   t = t.replace(/```(?:bash|sh|python|js|json|text|zsh|powershell)?\n([\s\S]*?)```/g, (_, code) => {
     const lines  = code.trim().split('\n');
-    const header = chalk.bgYellow.black.bold(' █ COMMAND EXECUTION █ ');
-    const topBar = chalk.yellow('███████████████████████████████████████████████████████████');
-    const botBar = chalk.yellow('▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀');
-    const body   = lines.map(l => chalk.yellow('█ ') + chalk.bold.greenBright(l)).join('\n');
-    return `\n${header}\n${topBar}\n${body}\n${botBar}\n`;
+    const top    = chalk.cyan('┌── ') + chalk.bold.yellow('COMMAND') + chalk.cyan(' ────────────────────────────────────────┐');
+    const bottom = chalk.cyan('└─────────────────────────────────────────────────────────┘');
+    const body   = lines.map(l => chalk.cyan('│ ') + chalk.bold.greenBright(l)).join('\n');
+    return `\n${top}\n${body}\n${bottom}\n`;
   });
   return t;
 }
 
-// ─── Neo-Brutalist Banner ─────────────────────────────────────────────────────
+// ─── Sleek Cyber-Neon Banner ──────────────────────────────────────────────────
 function printBanner() {
   console.clear();
   const preset = MODEL_PRESETS.find(m => m.id === config.model);
   const mName  = preset ? preset.name : config.model.slice(0, 18);
   
   const lbChip = activeLBMode
-    ? bgRedWhite(`🔴 LB: ${lbModes[activeLBMode]?.name}`)
-    : chalk.black.bgWhite(' LB: OFF ');
+    ? redBadge(`LB: ${lbModes[activeLBMode]?.name}`)
+    : chalk.dim('LB: OFF');
     
-  const groqChip = config.groqKey ? bgGreenBlack(' GROQ: OK ') : bgRedWhite(' GROQ: NO KEY ');
-  const modelChip = bgCyanBlack(` MODEL: ${mName.toUpperCase()} `);
+  const groqChip = config.groqKey ? greenBadge('GROQ: ONLINE') : redBadge('GROQ: NO KEY');
+  const modelChip = cyanBadge(`MODEL: ${mName.toUpperCase()}`);
 
   const cols = process.stdout.columns || 80;
   if (cols < 75) {
     console.log(`
-${chalk.yellow('██████████████████████████████████████████')}
-${chalk.yellow('█')} ${bgYellowBlack('NEXUS v4.0')} ${bgPinkWhite('AGENTIC ENGINE')} ${chalk.yellow('█')}
-${chalk.yellow('██████████████████████████████████████████')}
- ${modelChip}
- ${groqChip} ${lbChip}
-${chalk.dim('──────────────────────────────────────────')}
-${chalk.bold.yellow('COMMANDS:')} ${chalk.cyan('/help')} · ${chalk.cyan('/lb')} · ${chalk.cyan('/prompt')} · ${chalk.cyan('/model')} · ${chalk.cyan('/exec')}
+${chalk.cyan('┌───────────────────────────────────────┐')}
+${chalk.cyan('│')}  ${chalk.bold.yellow('⚡ NEXUS v4.0')} ${chalk.dim('│')} ${chalk.bold.magenta('AGENTIC AI')}       ${chalk.cyan('│')}
+${chalk.cyan('├───────────────────────────────────────┤')}
+${chalk.cyan('│')}  ${modelChip} ${groqChip}           ${chalk.cyan('│')}
+${chalk.cyan('├───────────────────────────────────────┤')}
+${chalk.cyan('│')}  ${chalk.dim('Commands: /help · /lb · /model · /exec')} ${chalk.cyan('│')}
+${chalk.cyan('└───────────────────────────────────────┘')}
 `);
   } else {
     console.log(`
-${chalk.yellow('███████████████████████████████████████████████████████████████████')}
-${chalk.yellow('█')} ${bgYellowBlack('NEXUS v4.0')} ${bgPinkWhite('UNINTERRUPTED AGENTIC ENGINE')} ${bgCyanBlack('NEO-BRUTALIST UI')} ${chalk.yellow('█')}
-${chalk.yellow('███████████████████████████████████████████████████████████████████')}
-  ${modelChip} ${groqChip} ${bgGreenBlack(' OPENROUTER: FREE ')} ${lbChip}
-${chalk.dim('───────────────────────────────────────────────────────────────────')}
-  ${chalk.bold.yellow('QUICK COMMANDS:')} ${chalk.cyan('/help')}  ${chalk.cyan('/lb')}  ${chalk.cyan('/prompt')}  ${chalk.cyan('/tools')}  ${chalk.cyan('/model')}  ${chalk.cyan('/providers')}  ${chalk.cyan('/exec')}
-${chalk.yellow('▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀')}
+${chalk.cyan('┌─────────────────────────────────────────────────────────────┐')}
+${chalk.cyan('│')}  ${chalk.bold.yellow('⚡ NEXUS v4.0')} ${chalk.dim('│')} ${chalk.bold.magenta('AGENTIC ENGINE')} ${chalk.dim('│')} ${chalk.bold.cyan('CYBER-NEON UI')}    ${chalk.cyan('│')}
+${chalk.cyan('├─────────────────────────────────────────────────────────────┤')}
+${chalk.cyan('│')}  ${modelChip}  ${groqChip}  ${greenBadge('OR: FREE')}  ${lbChip}   ${chalk.cyan('│')}
+${chalk.cyan('├─────────────────────────────────────────────────────────────┤')}
+${chalk.cyan('│')}  ${chalk.dim('Quick Commands: /help · /lb · /prompt · /tools · /model · /exec')} ${chalk.cyan('│')}
+${chalk.cyan('└─────────────────────────────────────────────────────────────┘')}
 `);
   }
 }
 
-// ─── Neo-Brutalist Command Reference (/help) ──────────────────────────────────
+// ─── Sleek Command Dashboard (/help) ──────────────────────────────────────────
 function printHelp() {
   console.log(`
-${bgYellowBlack('⚡ NEXUS v4.0 // COMMAND DASHBOARD')}
+${cyanBadge('⚡ NEXUS v4.0 COMMAND DASHBOARD')}
 
-${bgRedWhite(' 🔴 LIMIT BREAKER ENGINE ')}
+${redBadge('🔴 LIMIT BREAKER ENGINE')}
   ${chalk.bold.yellow('/lb')}                View all bypass modes + active status
-  ${chalk.bold.yellow('/lb <mode>')}         Activate mode (e.g. ${chalk.cyan('/lb nexus')})
+  ${chalk.bold.yellow('/lb <mode>')}         Activate bypass mode (${chalk.cyan('/lb nexus')})
   ${chalk.bold.yellow('/lb off')}            Disable limit breaker
-  ${chalk.bold.yellow('/lb update')}         AI auto-generates 3 new bypass modes
 
-${bgPinkWhite(' ✨ PROMPT GENERATOR ')}
-  ${chalk.bold.yellow('/prompt')}            List all 12 expert templates
-  ${chalk.bold.yellow('/prompt <type> <task>')} Build master prompt for task
-  ${chalk.bold.yellow('/prompt run')}        Execute last generated prompt
+${magentaBadge('✨ PROMPT GENERATOR')}
+  ${chalk.bold.yellow('/prompt')}            List 12 expert templates
+  ${chalk.bold.yellow('/prompt <type> <task>')} Generate optimized master prompt
 
-${bgCyanBlack(' 🛠️ SYSTEM COMMANDS ')}
-  ${chalk.bold.yellow('/tools')}             Kali Linux integrated tool matrix
+${greenBadge('🛠️ SYSTEM COMMANDS')}
+  ${chalk.bold.yellow('/tools')}             Kali Linux tool integration matrix
   ${chalk.bold.yellow('/model [key]')}       Switch active AI model
   ${chalk.bold.yellow('/exec <cmd>')}        Execute shell command + AI diagnosis
   ${chalk.bold.yellow('/setkey <p> <k>')}    Configure API keys (${chalk.dim('groq | openrouter')})
   ${chalk.bold.yellow('/providers')}         View live provider and disk status
-  ${chalk.bold.yellow('/clear')}             Clear screen & print brutalist banner
-  ${chalk.bold.yellow('/exit')}              Save state & exit
+  ${chalk.bold.yellow('/clear')}             Clear screen & refresh banner
+  ${chalk.bold.yellow('/exit')}              Save session & quit
 
-${bgGreenBlack(' 💡 EXAMPLES ')}
+${yellowBadge('💡 EXAMPLES')}
   ${chalk.cyan('nexus scan 192.168.1.0/24 for open ports')}
   ${chalk.cyan('/prompt security generate nmap command for OS detection')}
 `);
