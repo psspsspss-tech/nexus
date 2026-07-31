@@ -576,135 +576,110 @@ Integrated tools: ${allTools}
 RULES: Give COMPLETE answers. Wrap all commands in \`\`\`bash blocks. Use ## headers, **bold** key terms, - bullets. Never truncate.${lbSection}`;
 }
 
-// ─── Terminal Renderer ────────────────────────────────────────────────────────
+// ─── Neo-Brutalist Terminal UI Utilities ──────────────────────────────────────
+const bgYellowBlack = (t) => chalk.bgYellow.black.bold(` ${t} `);
+const bgCyanBlack   = (t) => chalk.bgCyan.black.bold(` ${t} `);
+const bgPinkWhite   = (t) => chalk.bgMagenta.white.bold(` ${t} `);
+const bgRedWhite    = (t) => chalk.bgRed.white.bold(` ${t} `);
+const bgGreenBlack  = (t) => chalk.bgGreen.black.bold(` ${t} `);
+
+// ─── Terminal Renderer (Neo-Brutalist Style) ──────────────────────────────────
 function render(text) {
   let t = text.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<thought>[\s\S]*?<\/thought>/gi, '').trim();
-  t = t.replace(/^#### (.*$)/gim, (_, p) => chalk.bold.white(`\n    ${p.trim()}`));
-  t = t.replace(/^### (.*$)/gim,  (_, p) => chalk.bold.cyan(`\n⚡ ${p.trim()}`));
-  t = t.replace(/^## (.*$)/gim,   (_, p) => chalk.bold.yellow(`\n❖ ${p.trim()}`));
-  t = t.replace(/^# (.*$)/gim,    (_, p) => chalk.bold.magenta(`\n█ ${p.trim().toUpperCase()}`));
-  t = t.replace(/^[•·] (.*$)/gim, (_, p) => chalk.cyan(`  ➜ `) + chalk.white(p.trim()));
-  t = t.replace(/^- (.*$)/gim,    (_, p) => chalk.green(`  ✦ `) + chalk.white(p.trim()));
-  t = t.replace(/^\d+\. (.*$)/gim,(_, p) => chalk.yellow(`  ◆ `) + chalk.white(p.trim()));
-  t = t.replace(/\*\*(.*?)\*\*/g, (_, p) => chalk.bold.yellow(p));
-  t = t.replace(/`([^`\n]+)`/g,   (_, p) => chalk.bold.green(p));
+  
+  // Neo-Brutalist Headers
+  t = t.replace(/^#### (.*$)/gim, (_, p) => '\n' + bgCyanBlack(`▌ ${p.trim()}`) + '\n');
+  t = t.replace(/^### (.*$)/gim,  (_, p) => '\n' + bgYellowBlack(`⚡ ${p.trim()}`) + '\n');
+  t = t.replace(/^## (.*$)/gim,   (_, p) => '\n' + bgPinkWhite(`❖ ${p.trim()}`) + '\n');
+  t = t.replace(/^# (.*$)/gim,    (_, p) => '\n' + bgGreenBlack(`█ ${p.trim().toUpperCase()}`) + '\n');
+  
+  // Neo-Brutalist Bullets & Lists
+  t = t.replace(/^[•·] (.*$)/gim, (_, p) => chalk.bold.cyan(`  █ `) + chalk.white(p.trim()));
+  t = t.replace(/^- (.*$)/gim,    (_, p) => chalk.bold.yellow(`  ▓ `) + chalk.white(p.trim()));
+  t = t.replace(/^\d+\. (.*$)/gim,(_, p) => chalk.bold.magenta(`  ▒ `) + chalk.white(p.trim()));
+  
+  // Inline Emphasis & Codes
+  t = t.replace(/\*\*(.*?)\*\*/g, (_, p) => chalk.bold.yellow(`[ ${p} ]`));
+  t = t.replace(/`([^`\n]+)`/g,   (_, p) => chalk.bold.black.bgWhite(` ${p} `));
+  
+  // Neo-Brutalist Code Block Box
   t = t.replace(/```(?:bash|sh|python|js|json|text|zsh|powershell)?\n([\s\S]*?)```/g, (_, code) => {
     const lines  = code.trim().split('\n');
-    const top    = chalk.dim('┌─') + chalk.bold.yellow(' COMMAND ') + chalk.dim('─'.repeat(48)) + chalk.dim('┐');
-    const bottom = chalk.dim('└' + '─'.repeat(57) + '┘');
-    const body   = lines.map(l => chalk.dim('│ ') + chalk.bold.greenBright(l)).join('\n');
-    return `\n${top}\n${body}\n${bottom}\n`;
+    const header = chalk.bgYellow.black.bold(' █ COMMAND EXECUTION █ ');
+    const topBar = chalk.yellow('███████████████████████████████████████████████████████████');
+    const botBar = chalk.yellow('▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀');
+    const body   = lines.map(l => chalk.yellow('█ ') + chalk.bold.greenBright(l)).join('\n');
+    return `\n${header}\n${topBar}\n${body}\n${botBar}\n`;
   });
   return t;
 }
 
-// ─── Banner ───────────────────────────────────────────────────────────────────
+// ─── Neo-Brutalist Banner ─────────────────────────────────────────────────────
 function printBanner() {
   console.clear();
   const preset = MODEL_PRESETS.find(m => m.id === config.model);
-  const mName  = preset ? preset.name : config.model.slice(0, 16);
-  const lbStatus = activeLBMode
-    ? chalk.bold.red(`🔴 LB:${lbModes[activeLBMode]?.name}`)
-    : chalk.dim('LB:off');
+  const mName  = preset ? preset.name : config.model.slice(0, 18);
+  
+  const lbChip = activeLBMode
+    ? bgRedWhite(`🔴 LB: ${lbModes[activeLBMode]?.name}`)
+    : chalk.black.bgWhite(' LB: OFF ');
+    
+  const groqChip = config.groqKey ? bgGreenBlack(' GROQ: OK ') : bgRedWhite(' GROQ: NO KEY ');
+  const modelChip = bgCyanBlack(` MODEL: ${mName.toUpperCase()} `);
 
   const cols = process.stdout.columns || 80;
   if (cols < 75) {
-    // Mobile narrow terminal layout
     console.log(`
-${chalk.bold.cyan('╔══════════════════════════════════════════╗')}
-${chalk.bold.cyan('║')} ${chalk.bold.green('⚡ NEXUS')} ${chalk.bold.yellow('//')} ${chalk.bold.magenta('MOBILE AGENT')} ${chalk.bold.white('v' + VERSION)}         ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('╠══════════════════════════════════════════╣')}
-${chalk.bold.cyan('║')} ${chalk.bold.white('Model:')} ${chalk.bold.cyan(mName.padEnd(16))} ${lbStatus.padEnd(10)} ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('║')} ${chalk.bold.white('Groq:')} ${config.groqKey ? chalk.green('✓') : chalk.red('✗')}   ${chalk.bold.white('OpenRouter:')} ${chalk.green('✓')}           ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('╠══════════════════════════════════════════╣')}
-${chalk.bold.cyan('║')} ${chalk.dim('/help · /lb · /prompt · /tools · /model')} ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('╚══════════════════════════════════════════╝')}
+${chalk.yellow('██████████████████████████████████████████')}
+${chalk.yellow('█')} ${bgYellowBlack('NEXUS v4.0')} ${bgPinkWhite('AGENTIC ENGINE')} ${chalk.yellow('█')}
+${chalk.yellow('██████████████████████████████████████████')}
+ ${modelChip}
+ ${groqChip} ${lbChip}
+${chalk.dim('──────────────────────────────────────────')}
+${chalk.bold.yellow('COMMANDS:')} ${chalk.cyan('/help')} · ${chalk.cyan('/lb')} · ${chalk.cyan('/prompt')} · ${chalk.cyan('/model')} · ${chalk.cyan('/exec')}
 `);
   } else {
-    // Standard desktop layout
     console.log(`
-${chalk.bold.cyan('  ╔══════════════════════════════════════════════════════════════════╗')}
-${chalk.bold.cyan('  ║')} ${chalk.bold.green('⚡ NEXUS')} ${chalk.bold.yellow('//')} ${chalk.bold.magenta('PLUS ULTRA')} ${chalk.bold.white('v' + VERSION)} ${chalk.bold.cyan('· LIMIT BREAKER · PROMPT GEN')}  ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')} ${chalk.dim('──────────────────────────────────────────────────────────────')} ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.white('Model:')} ${chalk.bold.cyan(mName.padEnd(22))}  ${chalk.bold.white('Groq:')} ${config.groqKey ? chalk.green('✓') : chalk.red('✗')}  ${chalk.bold.white('OR:')} ${chalk.green('✓')}  ${lbStatus}  ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')} ${chalk.dim('──────────────────────────────────────────────────────────────')} ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.dim('/help · /lb · /prompt · /tools · /model · /update · /exec')}    ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ╚══════════════════════════════════════════════════════════════════╝')}
+${chalk.yellow('███████████████████████████████████████████████████████████████████')}
+${chalk.yellow('█')} ${bgYellowBlack('NEXUS v4.0')} ${bgPinkWhite('UNINTERRUPTED AGENTIC ENGINE')} ${bgCyanBlack('NEO-BRUTALIST UI')} ${chalk.yellow('█')}
+${chalk.yellow('███████████████████████████████████████████████████████████████████')}
+  ${modelChip} ${groqChip} ${bgGreenBlack(' OPENROUTER: FREE ')} ${lbChip}
+${chalk.dim('───────────────────────────────────────────────────────────────────')}
+  ${chalk.bold.yellow('QUICK COMMANDS:')} ${chalk.cyan('/help')}  ${chalk.cyan('/lb')}  ${chalk.cyan('/prompt')}  ${chalk.cyan('/tools')}  ${chalk.cyan('/model')}  ${chalk.cyan('/providers')}  ${chalk.cyan('/exec')}
+${chalk.yellow('▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀')}
 `);
   }
 }
 
-// ─── /help ────────────────────────────────────────────────────────────────────
+// ─── Neo-Brutalist Command Reference (/help) ──────────────────────────────────
 function printHelp() {
-  const cols = process.stdout.columns || 80;
-  if (cols < 75) {
-    console.log(`
-${chalk.bold.cyan('⚡ NEXUS v4.0 · MOBILE HELP')}
+  console.log(`
+${bgYellowBlack('⚡ NEXUS v4.0 // COMMAND DASHBOARD')}
 
-${chalk.bold.red('🔴 LIMIT BREAKER')}
-  /lb           List bypass modes
-  /lb <mode>    Activate mode (e.g. /lb nexus)
-  /lb off       Disable limit breaker
+${bgRedWhite(' 🔴 LIMIT BREAKER ENGINE ')}
+  ${chalk.bold.yellow('/lb')}                View all bypass modes + active status
+  ${chalk.bold.yellow('/lb <mode>')}         Activate mode (e.g. ${chalk.cyan('/lb nexus')})
+  ${chalk.bold.yellow('/lb off')}            Disable limit breaker
+  ${chalk.bold.yellow('/lb update')}         AI auto-generates 3 new bypass modes
 
-${chalk.bold.magenta('✨ PROMPT GEN')}
-  /prompt       List prompt templates
-  /prompt <type> <task>  Generate prompt
+${bgPinkWhite(' ✨ PROMPT GENERATOR ')}
+  ${chalk.bold.yellow('/prompt')}            List all 12 expert templates
+  ${chalk.bold.yellow('/prompt <type> <task>')} Build master prompt for task
+  ${chalk.bold.yellow('/prompt run')}        Execute last generated prompt
 
-${chalk.bold.white('CORE COMMANDS')}
-  /tools        Kali tool list
-  /model [key]  Switch AI model
-  /exec <cmd>   Run command + AI analysis
-  /setkey <p> <k> Set API key (groq/openrouter)
-  /providers    Show provider status
-  /exit         Save & quit
+${bgCyanBlack(' 🛠️ SYSTEM COMMANDS ')}
+  ${chalk.bold.yellow('/tools')}             Kali Linux integrated tool matrix
+  ${chalk.bold.yellow('/model [key]')}       Switch active AI model
+  ${chalk.bold.yellow('/exec <cmd>')}        Execute shell command + AI diagnosis
+  ${chalk.bold.yellow('/setkey <p> <k>')}    Configure API keys (${chalk.dim('groq | openrouter')})
+  ${chalk.bold.yellow('/providers')}         View live provider and disk status
+  ${chalk.bold.yellow('/clear')}             Clear screen & print brutalist banner
+  ${chalk.bold.yellow('/exit')}              Save state & exit
+
+${bgGreenBlack(' 💡 EXAMPLES ')}
+  ${chalk.cyan('nexus scan 192.168.1.0/24 for open ports')}
+  ${chalk.cyan('/prompt security generate nmap command for OS detection')}
 `);
-  } else {
-    console.log(`
-${chalk.bold.cyan('  ╔════════════════════════════════════════════════════════════════════╗')}
-${chalk.bold.cyan('  ║')}           ${chalk.bold.yellow('⚡ NEXUS v4.0 · COMPLETE COMMAND REFERENCE')}          ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ╠════════════════════════════════════════════════════════════════════╣')}
-${chalk.bold.cyan('  ║')}                                                                    ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.red('🔴 LIMIT BREAKER')}                                                 ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/lb')}                 List all bypass modes + status             ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/lb <mode>')}          Activate mode  e.g. /lb nexus              ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/lb off')}             Disable limit breaker                      ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/lb update')}          AI generates new bypass modes (auto-save)  ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/lb test')}            Test active mode with a probe query        ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}                                                                    ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.magenta('✨ PROMPT GENERATOR')}                                              ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/prompt')}             List all prompt templates                  ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/prompt <type> <task>')} Generate expert prompt for task          ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/prompt copy')}        Copy last generated prompt                 ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/prompt run')}         Run last generated prompt through AI       ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/prompt update')}      AI generates new templates (auto-save)     ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}                                                                    ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.white('CORE COMMANDS')}                                                    ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/tools')}              Kali tool list (install status)            ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/model [key]')}        List / switch AI model                     ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/update')}             Fetch latest models from Groq + OR        ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/sync')}               Update local offline Ollama models        ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/exec <cmd>')}         Run bash + AI analysis of output           ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/remember <fact>')}    Save to persistent memory                  ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/forget <n>')}         Remove memory entry by number              ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/memory')}             View memory bank                           ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/history')}            View conversation history                  ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/reset')}              Clear conversation (keep memory)           ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/setkey <p> <k>')}     Set API key  groq · openrouter            ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/providers')}          Show provider status                       ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/clear')}              Clear terminal                             ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.green('/exit')}               Save & quit                                ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}                                                                    ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  ${chalk.bold.white('EXAMPLES')}                                                         ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  /lb nexus               Activate NEXUS unlimited mode            ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  /prompt security nmap scan for open ports on 192.168.1.0/24     ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  /prompt ctf I have a login page with ?id= parameter             ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  /prompt shell python reverse shell to 192.168.1.100:4444        ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  /prompt custom write me a WiFi deauth tool in python            ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  nexus scan 192.168.1.0/24 for all open ports                ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ║')}  nexus crack hash 5f4dcc3b5aa765d61d8327deb882cf99           ${chalk.bold.cyan('║')}
-${chalk.bold.cyan('  ╚════════════════════════════════════════════════════════════════════╝')}
-`);
-  }
 }
 
 // ─── /lb — Limit Breaker ──────────────────────────────────────────────────────
@@ -1240,8 +1215,9 @@ async function startREPL() {
   rl.on('close', () => { saveMemory(memory); process.exit(0); });
 
   const askPrompt = () => {
-    const lbTag = activeLBMode ? chalk.bold.red(`[🔴${lbModes[activeLBMode]?.name}] `) : '';
-    rl.question(chalk.bold.cyan('\nnexus ❯ ') + lbTag, async line => {
+    const lbTag = activeLBMode ? bgRedWhite(`🔴 ${lbModes[activeLBMode]?.name}`) + ' ' : '';
+    const promptStr = '\n' + bgYellowBlack('NEXUS') + ' ' + lbTag + chalk.bold.cyan('❯ ');
+    rl.question(promptStr, async line => {
       const input = line.trim();
       if (!input) return askPrompt();
 
@@ -1250,16 +1226,16 @@ async function startREPL() {
         const cmd     = parts[0].toLowerCase();
         const argText = parts.slice(1).join(' ');
         const handled = await handleSlash(cmd, argText);
-        if (!handled) console.log(chalk.bold.red(`\nUnknown command: ${cmd}  →  /help\n`));
+        if (!handled) console.log(bgRedWhite(` UNKNOWN COMMAND: ${cmd} `) + chalk.dim('  →  /help\n'));
         return askPrompt();
       }
 
       const userMsg = { role: 'user', content: input };
-      const lbLabel = activeLBMode ? chalk.bold.red(` [🔴 ${lbModes[activeLBMode]?.name}]`) : '';
-      console.log(chalk.bold.cyan('\nNEXUS ⚡') + lbLabel + '\n');
+      const lbLabel = activeLBMode ? bgRedWhite(` 🔴 ${lbModes[activeLBMode]?.name} `) : '';
+      console.log('\n' + bgCyanBlack('⚡ NEXUS AGENT') + ' ' + lbLabel + '\n');
       let raw = '';
       await queryAI([userMsg], chunk => { raw += chunk; process.stdout.write(chunk); });
-      console.log('\n' + chalk.dim('─'.repeat(64)) + '\n');
+      console.log('\n' + chalk.yellow('███████████████████████████████████████████████████████████') + '\n');
 
       memory.history.push(userMsg);
       memory.history.push({ role: 'assistant', content: raw });
