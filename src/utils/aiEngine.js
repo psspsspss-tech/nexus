@@ -17,7 +17,7 @@ export const MODEL_PRESETS = [
   { id: 'llama3.1:8b', name: 'Llama 3.1 8B (Local Ollama)', provider: 'ollama', local: true },
   { id: 'qwen2.5-coder:7b', name: 'Qwen 2.5 Coder 7B (Local Ollama)', provider: 'ollama', local: true },
   { id: 'mistral:7b', name: 'Mistral 7B (Local Ollama)', provider: 'ollama', local: true },
-  { id: 'neo-kali-builtin', name: 'Neo-Kali Agent Core (Built-in No-Limit)', provider: 'builtin', free: true }
+  { id: 'nexus-builtin', name: 'Nexus Agent Core (Built-in No-Limit)', provider: 'builtin', free: true }
 ];
 
 export async function fetchOllamaModels(endpoint = 'http://localhost:11434') {

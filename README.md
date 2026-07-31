@@ -1,4 +1,4 @@
-# ⚡ NEO-KALI v4.0 — Plus Ultra Agentic AI Engine
+# ⚡ NEXUS v4.0 — Plus Ultra Agentic AI Engine
 
 > An agentic security AI assistant built for Kali Linux with multi-provider free AI model failovers, Limit Breaker engine, expert prompt generator, 50+ Kali tool integration, persistent memory, and automatic offline fallback.
 
@@ -21,14 +21,14 @@
 
 ### 1-Line Quick Install
 ```bash
-git clone https://github.com/psspsspss-tech/kali-neo-ai.git ~/kali-neo-ai && cd ~/kali-neo-ai && npm install && sudo npm link
+git clone https://github.com/psspsspss-tech/nexus.git ~/nexus && cd ~/nexus && npm install && sudo npm link
 ```
 
 ### Manual Installation
 ```bash
 # Clone the repository
-git clone https://github.com/psspsspss-tech/kali-neo-ai.git ~/kali-neo-ai
-cd ~/kali-neo-ai
+git clone https://github.com/psspsspss-tech/nexus.git ~/nexus
+cd ~/nexus
 
 # Install dependencies and link globally
 npm install
@@ -41,11 +41,11 @@ sudo npm link
 
 ```bash
 # Interactive REPL Mode
-neo-kali
+nexus
 
 # Single-Prompt Command Line Mode
-neo-kali scan 192.168.1.0/24 for open ports and services
-neo-kali crack hash 5f4dcc3b5aa765d61d8327deb882cf99
+nexus scan 192.168.1.0/24 for open ports and services
+nexus crack hash 5f4dcc3b5aa765d61d8327deb882cf99
 ```
 
 ---
@@ -65,7 +65,7 @@ neo-kali crack hash 5f4dcc3b5aa765d61d8327deb882cf99
 | `/update` | Fetch live available model catalogs from Groq & OpenRouter |
 | `/sync` | Update local offline Ollama models (with 80% disk safety cap) |
 | `/exec <cmd>` | Execute shell command and run AI analysis on stdout/stderr |
-| `/remember <fact>` | Save key facts to persistent memory (`~/.config/neo-kali/memory.json`) |
+| `/remember <fact>` | Save key facts to persistent memory (`~/.config/nexus/memory.json`) |
 | `/forget <index>` | Delete memory entry by number |
 | `/memory` | View current memory bank |
 | `/providers` | Check status of AI providers and disk storage cap |

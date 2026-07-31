@@ -4,7 +4,7 @@ import { audioFX } from '../utils/audioFX';
 
 export default function TerminalSandbox({ externalCommand }) {
   const [history, setHistory] = useState([
-    { type: 'sys', text: 'NEO-KALI Linux Shell Engine [v2.4.0-release]' },
+    { type: 'sys', text: 'NEXUS Linux Shell Engine [v2.4.0-release]' },
     { type: 'sys', text: 'Type "help" or click sample scripts below to execute Kali shell commands.' }
   ]);
   const [command, setCommand] = useState('');
@@ -96,7 +96,7 @@ vimal     4155  7.8  0.6 152369 52364 ?        Sl   13:41   0:00 xfce4-panel`
     } else {
       newEntry.push({
         type: 'out',
-        text: `[*] Executing: ${cleanCmd}\n[+] Task dispatched to Neo-Kali execution background daemon.\n[✓] Exit Status: 0 (SUCCESS)`
+        text: `[*] Executing: ${cleanCmd}\n[+] Task dispatched to Nexus execution background daemon.\n[✓] Exit Status: 0 (SUCCESS)`
       });
     }
 

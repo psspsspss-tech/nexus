@@ -14,7 +14,7 @@ export default function SystemTelemetry() {
     { pid: 3760, name: 'xfdesktop', user: 'vimal', cpu: '24.0%', mem: '57 MB', status: 'RUNNING' },
     { pid: 4155, name: 'xfce4-panel', user: 'vimal', cpu: '7.8%', mem: '52 MB', status: 'RUNNING' },
     { pid: 1629, name: 'gnome-keyring-daemon', user: 'vimal', cpu: '0.1%', mem: '10 MB', status: 'RUNNING' },
-    { pid: 8842, name: 'neo-kali-ai-core', user: 'vimal', cpu: '4.2%', mem: '142 MB', status: 'ACTIVE' }
+    { pid: 8842, name: 'nexus-ai-core', user: 'vimal', cpu: '4.2%', mem: '142 MB', status: 'ACTIVE' }
   ];
 
   useEffect(() => {

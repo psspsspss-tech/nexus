@@ -45,7 +45,7 @@ export default function Header({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <h1 className="font-display glow-cyan" style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, letterSpacing: '0.08em' }}>
-              NEO-KALI <span style={{ color: 'var(--neon-green)' }}>AI</span>
+              NEXUS <span style={{ color: 'var(--neon-green)' }}>AI</span>
             </h1>
             <span className="badge badge-cyan">v2.4 CORE</span>
             <span className="badge badge-green" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
